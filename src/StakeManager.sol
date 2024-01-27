@@ -30,7 +30,7 @@ contract StakeManager is IStakeManager, RolesManager, UUPSUpgradeable{
         registrationWaitTime = _registrationWaitTime;
     }
 
-    function register() public payable {
+    function register() external payable {
         require(!isRegistered(msg.sender), "Already registered");
         require(msg.value == registrationDepositAmount, "Incorrect balance amount");
 
@@ -65,7 +65,6 @@ contract StakeManager is IStakeManager, RolesManager, UUPSUpgradeable{
     function slash(address staker, uint256 amount) external onlyAdmin {
         require(stakers[staker].balance >= amount, "Not enough balance to slash");
         stakers[staker].balance -= amount;
-        payable(admin).transfer(amount);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyAdmin {}
@@ -78,9 +77,4 @@ contract StakeManager is IStakeManager, RolesManager, UUPSUpgradeable{
         return stakers[_addr].balance;
     }
 
-    function registrastionPeriodLeft(address _addr) public view returns(int) {
-        int now = int256(block.timestamp);
-        int period = int256(stakers[msg.sender].registrationTime + registrationWaitTime);
-        return now - period;
-    }
 }
